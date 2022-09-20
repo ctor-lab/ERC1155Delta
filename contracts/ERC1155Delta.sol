@@ -12,13 +12,8 @@ import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
 import "solidity-bits/contracts/BitMaps.sol";
 
-/**
- * @dev Implementation of the basic standard multi-token.
- * See https://eips.ethereum.org/EIPS/eip-1155
- * Originally based on code by Enjin: https://github.com/enjin/erc-1155
- *
- * _Available since v3.1._
- */
+
+
 contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
     using Address for address;
@@ -36,12 +31,16 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI {
     uint256 private _minted;
 
 
-    function _startTokenId() internal virtual returns (uint256) {
+    function _startTokenId() internal pure virtual returns (uint256) {
         return 0;
     }
 
-    function _nextTokenId() internal returns (uint256) {
-        return _startTokenId() + _minted;
+    function _nextTokenId() internal view returns (uint256) {
+        return _startTokenId() + _totalMinted();
+    }
+
+    function _totalMinted() internal view returns (uint256) {
+        return _minted;
     }
 
     /**
@@ -191,10 +190,12 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         _beforeTokenTransfer(operator, from, to, ids, amounts, data);
 
-        require(amount == 1 || _owned[from].get(id), "ERC1155: insufficient balance for transfer");
-
-        _owned[from].unset(id);
-        _owned[to].set(id);
+        if(amount == 1 && _owned[from].get(id)) {
+            _owned[from].unset(id);
+            _owned[to].set(id);
+        } else if (amount > 1) {
+            revert("ERC1155: insufficient balance for transfer");
+        }
 
         emit TransferSingle(operator, from, to, id, amount);
 
@@ -231,10 +232,12 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI {
             uint256 id = ids[i];
             uint256 amount = amounts[i];
 
-            require(amount == 1 || _owned[from].get(id), "ERC1155: insufficient balance for transfer");
-
-            _owned[from].unset(id);
-            _owned[to].set(id);
+            if(amount == 1 && _owned[from].get(id)) {
+                _owned[from].unset(id);
+                _owned[to].set(id);
+            } else if (amount > 1) {
+                revert("ERC1155: insufficient balance for transfer");
+            }
         }
 
         emit TransferBatch(operator, from, to, ids, amounts);
@@ -290,7 +293,7 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory ids = new uint256[](amount);
         uint256[] memory amounts = new uint256[](amount);
         uint256 startTokenId = _nextTokenId();
-
+        
         for(uint256 i = 0; i < amount; i++) {
             ids[i] = startTokenId + i;
             amounts[i] = 1;
@@ -299,6 +302,7 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI {
         _beforeTokenTransfer(operator, address(0), to, ids, amounts, data);
 
         _owned[to].setBatch(startTokenId, amount);
+        _minted += amount;
 
         emit TransferBatch(operator, address(0), to, ids, amounts);
 

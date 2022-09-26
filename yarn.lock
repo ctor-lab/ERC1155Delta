@@ -7278,10 +7278,10 @@ solc@^0.6.3:
     semver "^5.5.0"
     tmp "0.0.33"
 
-solidity-bits@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/solidity-bits/-/solidity-bits-0.2.0.tgz#30f66d5a0be5300b27f689b8b71bdca6d3f36b92"
-  integrity sha512-yhEVVlA6WC5BQZT9IJNjIase241LHgO2M48uo+In3n1gkYnOdL/nSo/GOG/RiwDfVruaARHFhatD4xORZpPjdA==
+solidity-bits@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/solidity-bits/-/solidity-bits-0.4.0.tgz#164ef2184d446b37fe1e08e63c55ae200b36697a"
+  integrity sha512-bAU3OwfZ3DrZz0LqxyCjaxXQL5fcbUXygaz7Wjd+4Th5zUbkw6h1SWBdi2E4yGOv1VSGyvcmHI8gAdgLDCXaDQ==
 
 source-map-resolve@^0.5.0:
   version "0.5.3"

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// Creator: Ctor Lab (https://ctor.xyz)
 
 pragma solidity ^0.8.0;
 
@@ -20,7 +21,7 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI {
     using BitMaps for BitMaps.BitMap;
 
     // Mapping from accout to owned tokens
-    mapping(address => BitMaps.BitMap) private _owned;
+    mapping(address => BitMaps.BitMap) internal _owned;
     
     // Mapping from account to operator approvals
     mapping(address => mapping(address => bool)) private _operatorApprovals;
@@ -28,7 +29,7 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI {
     // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
     string private _uri;
 
-    uint256 private _minted;
+    uint256 private _currentIndex;
 
 
     function _startTokenId() internal pure virtual returns (uint256) {
@@ -36,11 +37,11 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI {
     }
 
     function _nextTokenId() internal view returns (uint256) {
-        return _startTokenId() + _totalMinted();
+        return _currentIndex;
     }
 
     function _totalMinted() internal view returns (uint256) {
-        return _minted;
+        return _nextTokenId() - _startTokenId();
     }
 
     /**
@@ -48,6 +49,7 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI {
      */
     constructor(string memory uri_) {
         _setURI(uri_);
+        _currentIndex = _startTokenId();
     }
 
     /**
@@ -193,9 +195,11 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI {
         if(amount == 1 && _owned[from].get(id)) {
             _owned[from].unset(id);
             _owned[to].set(id);
-        } else if (amount > 1) {
-            revert("ERC1155: insufficient balance for transfer");
-        }
+        } else {
+            if(amount != 0) {
+                revert("ERC1155: insufficient balance for transfer");
+            }
+        } 
 
         emit TransferSingle(operator, from, to, id, amount);
 
@@ -302,7 +306,7 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI {
         _beforeTokenTransfer(operator, address(0), to, ids, amounts, data);
 
         _owned[to].setBatch(startTokenId, amount);
-        _minted += amount;
+        _currentIndex += amount;
 
         emit TransferBatch(operator, address(0), to, ids, amounts);
 

@@ -28,7 +28,4 @@ contract ERC1155DeltaMock is ERC1155Delta {
         _burn(from, id);
     }
 
-
-
-
 }

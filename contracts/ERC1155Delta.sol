@@ -3,19 +3,18 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 
-import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
 import "solidity-bits/contracts/BitMaps.sol";
 
+import "./IERC1155Delta.sol";
 
 
-contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI {
+contract ERC1155Delta is IERC1155Delta, Context, ERC165 {
 
     using Address for address;
     using BitMaps for BitMaps.BitMap;
@@ -31,6 +30,13 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
     uint256 private _currentIndex;
 
+    /**
+     * @dev See {_setURI}.
+     */
+    constructor(string memory uri_) {
+        _setURI(uri_);
+        _currentIndex = _startTokenId();
+    }
 
     function _startTokenId() internal pure virtual returns (uint256) {
         return 0;
@@ -44,12 +50,8 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI {
         return _nextTokenId() - _startTokenId();
     }
 
-    /**
-     * @dev See {_setURI}.
-     */
-    constructor(string memory uri_) {
-        _setURI(uri_);
-        _currentIndex = _startTokenId();
+    function isOwnerOf(address account, uint256 id) public view virtual override returns(bool) {
+        return _owned[account].get(id);
     }
 
     /**

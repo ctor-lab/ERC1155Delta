@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 import "../IERC1155Delta.sol";
+import "./TokenURIConversion.sol";
 
 interface IOwnable {
     function owner() external view returns (address);
@@ -24,9 +25,17 @@ contract ERC1155DeltaInERC721 is IOwnable, ERC1155Receiver, ERC721 {
         erc115delta = erc115delta_;
     }
 
-    // TODO override tokenURI
+    // TODO test this function
+    function tokenURI(uint256 tokenId) public virtual override view returns (string memory) {
+        require(
+            _exists(tokenId),
+            "" //TODO
+        );
+        return TokenURIConversion.convert(IERC1155Delta(erc115delta).uri(tokenId), tokenId);
 
-    function owner() external virtual override view returns (address) {
+    }
+
+    function owner() public virtual override view returns (address) {
         return IOwnable(erc115delta).owner();
     }
 

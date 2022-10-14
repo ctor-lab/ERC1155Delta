@@ -5,6 +5,10 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
+
+
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
@@ -14,7 +18,7 @@ import "solidity-bits/contracts/BitMaps.sol";
 import "./IERC1155Delta.sol";
 
 
-contract ERC1155Delta is IERC1155Delta, Context, ERC165 {
+contract ERC1155Delta is IERC1155, IERC1155MetadataURI, IERC1155Delta, Context, ERC165 {
 
     using Address for address;
     using BitMaps for BitMaps.BitMap;
@@ -61,6 +65,7 @@ contract ERC1155Delta is IERC1155Delta, Context, ERC165 {
         return
             interfaceId == type(IERC1155).interfaceId ||
             interfaceId == type(IERC1155MetadataURI).interfaceId ||
+            interfaceId == type(IERC1155Delta).interfaceId ||
             super.supportsInterface(interfaceId);
     }
 

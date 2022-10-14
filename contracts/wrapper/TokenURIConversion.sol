@@ -5,6 +5,10 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 pragma solidity ^0.8.0;
 
 library TokenURIConversion {
+    /**
+     * @dev Convert the ERC1155 metadata URI to ERC721 metata URI by subsituting the `{id}`
+     * with the hex encoded tokenId.
+     */
     function convert(string memory uri_, uint256 tokenId) internal pure returns (string memory tokenURI) {
 
         bytes memory uri = bytes(uri_);
@@ -33,7 +37,7 @@ library TokenURIConversion {
             bytes memory newUri = new bytes(newUriLength);
             bytes memory id = bytes(Strings.toHexString(tokenId, 32));
             unchecked {
-                for(uint256 i; i < newUriLength; i++) {
+                for(uint256 i=0; i < newUriLength; i++) {
                     if (i < replace_index) {
                         newUri[i] = uri[i];
                     } else if (i < replace_index + 64) {

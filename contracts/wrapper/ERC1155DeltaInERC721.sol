@@ -3,6 +3,8 @@
 
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
@@ -15,6 +17,7 @@ interface IOwnable {
 
 
 contract ERC1155DeltaInERC721 is IOwnable, ERC1155Receiver, ERC721 {
+    error ZeroAddress();
     address public immutable erc115delta;
 
     constructor(
@@ -22,17 +25,14 @@ contract ERC1155DeltaInERC721 is IOwnable, ERC1155Receiver, ERC721 {
         string memory name_,
         string memory symbol_
     ) ERC721(name_, symbol_) {
+        if(erc115delta_ == address(0)) {
+            revert ZeroAddress();
+        }
         erc115delta = erc115delta_;
     }
 
-    // TODO test this function
     function tokenURI(uint256 tokenId) public virtual override view returns (string memory) {
-        require(
-            _exists(tokenId),
-            "" //TODO
-        );
-        return TokenURIConversion.convert(IERC1155Delta(erc115delta).uri(tokenId), tokenId);
-
+        return TokenURIConversion.convert(IERC1155MetadataURI(erc115delta).uri(tokenId), tokenId);
     }
 
     function owner() public virtual override view returns (address) {
@@ -44,7 +44,7 @@ contract ERC1155DeltaInERC721 is IOwnable, ERC1155Receiver, ERC721 {
     }
 
     function unwrap(uint256[] calldata tokenIds) public virtual {
-        for(uint256 i; i < tokenIds.length; i++) {
+        for(uint256 i=0; i < tokenIds.length; i++) {
             uint256 tokenId = tokenIds[i];
             require(
                 _isApprovedOrOwner(msg.sender, tokenId),
@@ -53,7 +53,7 @@ contract ERC1155DeltaInERC721 is IOwnable, ERC1155Receiver, ERC721 {
             address tokenOwner = ownerOf(tokenId);
             _burn(tokenId);
             // TODO think about the reentrancy problem.
-            IERC1155Delta(erc115delta).safeTransferFrom(address(this), tokenOwner, tokenId, 1, "");
+            IERC1155(erc115delta).safeTransferFrom(address(this), tokenOwner, tokenId, 1, "");
         }
     }
 
@@ -78,7 +78,7 @@ contract ERC1155DeltaInERC721 is IOwnable, ERC1155Receiver, ERC721 {
     ) public virtual override returns (bytes4) {
         require(msg.sender == erc115delta, "ERC1155DeltaInERC721: Not from the ERC1155Delta contract");
         unchecked {
-            for(uint256 i; i < ids.length; i++) {
+            for(uint256 i=0; i < ids.length; i++) {
                 _safeMint(from, ids[i]);
             }
         }

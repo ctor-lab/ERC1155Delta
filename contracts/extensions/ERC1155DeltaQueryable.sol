@@ -56,13 +56,15 @@ abstract contract ERC1155DeltaQueryable is IERC1155DeltaQueryable, ERC1155Delta 
     ) public view virtual override returns (uint256[] memory) {
         unchecked {
             if (start >= stop) revert InvalidQueryRange();
-            uint256 tokenIdsIdx;
-            uint256 stopLimit = _nextTokenId();
+            uint256 tokenIdsIdx = 0;
+            
             // Set `start = max(start, _startTokenId())`.
             if (start < _startTokenId()) {
                 start = _startTokenId();
             }
+            
             // Set `stop = min(stop, stopLimit)`.
+            uint256 stopLimit = _nextTokenId();
             if (stop > stopLimit) {
                 stop = stopLimit;
             }
@@ -71,7 +73,7 @@ abstract contract ERC1155DeltaQueryable is IERC1155DeltaQueryable, ERC1155Delta 
 
             BitMaps.BitMap storage bmap = _owned[owner];
 
-            for (uint256 i = _startTokenId(); tokenIdsIdx != tokenIdsLength; ++i) {
+            for (uint256 i = start; tokenIdsIdx != tokenIdsLength; ++i) {
                 if(bmap.get(i) ) {
                     tokenIds[tokenIdsIdx++] = i;
                 }

@@ -39,11 +39,11 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
     /**
      * @dev See {_setURI}.
      */
-    function _ERC1155Delta_init(string memory uri_) internal onlyInitializing {
-        _ERC1155Delta_init_unchained(uri_);
+    function __ERC1155Delta_init(string memory uri_) internal onlyInitializing {
+        __ERC1155Delta_init_unchained(uri_);
     }
 
-    function _ERC1155Delta_init_unchained(string memory uri_) internal onlyInitializing {
+    function __ERC1155Delta_init_unchained(string memory uri_) internal onlyInitializing {
         _setURI(uri_);
         _currentIndex = _startTokenId();
     }

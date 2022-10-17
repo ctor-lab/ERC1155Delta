@@ -5,21 +5,24 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 
-import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/IERC1155MetadataURIUpgradeable.sol";
 
-import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
-import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol";
+
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 import "solidity-bits/contracts/BitMaps.sol";
 
 import "./IERC1155Delta.sol";
 
 
-contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC1155Delta {
+contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Upgradeable, IERC1155Upgradeable, 
+    IERC1155MetadataURIUpgradeable, IERC1155Delta {
 
-    using Address for address;
+    using AddressUpgradeable for address;
     using BitMaps for BitMaps.BitMap;
 
     // Mapping from accout to owned tokens
@@ -36,7 +39,11 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC115
     /**
      * @dev See {_setURI}.
      */
-    constructor(string memory uri_) {
+    function _ERC1155Delta_init(string memory uri_) internal onlyInitializing {
+        _ERC1155Delta_init_unchained(uri_);
+    }
+
+    function _ERC1155Delta_init_unchained(string memory uri_) internal onlyInitializing {
         _setURI(uri_);
         _currentIndex = _startTokenId();
     }

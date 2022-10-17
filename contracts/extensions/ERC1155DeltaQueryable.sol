@@ -23,7 +23,7 @@ abstract contract ERC1155DeltaQueryable is IERC1155DeltaQueryable, ERC1155Delta 
     }
 
 
-/**
+    /**
      * @dev Returns the number of tokens owned by `owner`,
      * in the range [`start`, `stop`)
      * (i.e. `start <= tokenId < stop`).

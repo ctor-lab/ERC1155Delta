@@ -10,6 +10,13 @@ contract ERC1155DeltaMock is ERC1155Delta {
 
     function mint(
         address to,
+        uint256 amount
+    ) external {
+        _mint(to, amount, "");    
+    }
+
+    function mint(
+        address to,
         uint256 amount,
         bytes calldata data
     ) external {
@@ -26,6 +33,18 @@ contract ERC1155DeltaMock is ERC1155Delta {
         uint256 id
     ) public {
         _burn(from, id);
+    }
+
+    function totalMinted() external view returns (uint256) {
+        return _totalMinted();
+    }
+
+    function nextTokenId() external view returns (uint256) {
+        return _nextTokenId();
+    }
+
+    function startTokenId() external pure returns (uint256) {
+        return _startTokenId();
     }
 
 }

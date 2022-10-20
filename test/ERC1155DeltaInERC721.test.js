@@ -24,7 +24,7 @@ describe("Greeter", function () {
         this.converter = await this.converter.deploy();
         await this.converter.deployed();
 
-        await this.erc1155delta.connect(deployer).mint(deployer.address, 10, data);
+        await this.erc1155delta.connect(deployer).functions["mint(address,uint256)"](deployer.address, 10);
     });
     
   it("Wrap and unwrap", async function () {

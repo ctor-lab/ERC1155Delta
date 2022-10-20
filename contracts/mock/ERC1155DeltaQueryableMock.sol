@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.0;
 
-import "../ERC1155Delta.sol";
+import "../extensions/ERC1155DeltaQueryable.sol";
 
-contract ERC1155DeltaMock is ERC1155Delta {
+contract ERC1155DeltaQueryableMock is ERC1155DeltaQueryable {
 
     constructor(string memory uri_) ERC1155Delta(uri_) {}
 

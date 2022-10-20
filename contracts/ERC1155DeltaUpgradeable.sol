@@ -67,10 +67,10 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
     /**
      * @dev See {IERC165-supportsInterface}.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165Upgradeable, IERC165Upgradeable) returns (bool) {
         return
-            interfaceId == type(IERC1155).interfaceId ||
-            interfaceId == type(IERC1155MetadataURI).interfaceId ||
+            interfaceId == type(IERC1155Upgradeable).interfaceId ||
+            interfaceId == type(IERC1155MetadataURIUpgradeable).interfaceId ||
             interfaceId == type(IERC1155Delta).interfaceId ||
             super.supportsInterface(interfaceId);
     }

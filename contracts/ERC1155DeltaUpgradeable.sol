@@ -67,10 +67,10 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
     /**
      * @dev See {IERC165-supportsInterface}.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165Upgradeable, IERC165Upgradeable) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return
-            interfaceId == type(IERC1155Upgradeable).interfaceId ||
-            interfaceId == type(IERC1155MetadataURIUpgradeable).interfaceId ||
+            interfaceId == type(IERC1155).interfaceId ||
+            interfaceId == type(IERC1155MetadataURI).interfaceId ||
             interfaceId == type(IERC1155Delta).interfaceId ||
             super.supportsInterface(interfaceId);
     }
@@ -97,7 +97,9 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
      * - `account` cannot be the zero address.
      */
     function balanceOf(address account, uint256 id) public view virtual override returns (uint256) {
-        require(account != address(0), "ERC1155: address zero is not a valid owner");
+        if(account == address(0)) {
+            revert BalanceQueryForZeroAddress();
+        }
         if(_owned[account].get(id)) {
             return 1;
         } else {
@@ -119,7 +121,9 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         override
         returns (uint256[] memory)
     {
-        require(accounts.length == ids.length, "ERC1155: accounts and ids length mismatch");
+        if(accounts.length != ids.length) {
+            revert InputLengthMistmatch();
+        }
 
         uint256[] memory batchBalances = new uint256[](accounts.length);
 
@@ -154,11 +158,15 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         uint256 amount,
         bytes memory data
     ) public virtual override {
-        require(
-            from == _msgSender() || isApprovedForAll(from, _msgSender()),
-            "ERC1155: caller is not token owner nor approved"
-        );
-        _safeTransferFrom(from, to, id, amount, data);
+        //if(!(from == _msgSender() || isApprovedForAll(from, _msgSender()))) {
+        //    revert TransferCallerNotOwnerNorApproved();
+        //}
+        if(from == _msgSender() || isApprovedForAll(from, _msgSender())){
+            _safeTransferFrom(from, to, id, amount, data);
+        } else {
+            revert TransferCallerNotOwnerNorApproved();
+        }
+        
     }
 
     /**
@@ -171,10 +179,9 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         uint256[] memory amounts,
         bytes memory data
     ) public virtual override {
-        require(
-            from == _msgSender() || isApprovedForAll(from, _msgSender()),
-            "ERC1155: caller is not token owner nor approved"
-        );
+        if(!(from == _msgSender() || isApprovedForAll(from, _msgSender()))) {
+            revert TransferCallerNotOwnerNorApproved();
+        }
         _safeBatchTransferFrom(from, to, ids, amounts, data);
     }
 
@@ -198,7 +205,9 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         uint256 amount,
         bytes memory data
     ) internal virtual {
-        require(to != address(0), "ERC1155: transfer to the zero address");
+        if(to == address(0)) {
+            revert TransferToZeroAddress();
+        }
 
         address operator = _msgSender();
         uint256[] memory ids = _asSingletonArray(id);
@@ -210,7 +219,7 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
             _owned[from].unset(id);
             _owned[to].set(id);
         } else {
-            revert("ERC1155: zero or insufficient balance for transfer");
+            revert TransferFromIncorrectOwnerOrInvalidAmount();
         } 
 
         emit TransferSingle(operator, from, to, id, amount);
@@ -237,9 +246,13 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual {
-        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
-        require(to != address(0), "ERC1155: transfer to the zero address");
+        if(ids.length != amounts.length) {
+            revert InputLengthMistmatch();
+        }
 
+        if(to == address(0)) {
+            revert TransferToZeroAddress();
+        }
         address operator = _msgSender();
 
         _beforeTokenTransfer(operator, from, to, ids, amounts, data);
@@ -252,7 +265,7 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
                 _owned[from].unset(id);
                 _owned[to].set(id);
             } else {
-                revert("ERC1155: zero or insufficient balance for transfer");
+                revert TransferFromIncorrectOwnerOrInvalidAmount();
             }
         }
 
@@ -294,6 +307,7 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
      * Requirements:
      *
      * - `to` cannot be the zero address.
+     * - `amount` cannot be zero.
      * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
      * acceptance magic value.
      */
@@ -302,8 +316,12 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         uint256 amount,
         bytes memory data
     ) internal virtual {
-        require(to != address(0), "ERC1155: mint to the zero address");
-        require(amount != 0, "ERC1155: mint zero quantity");
+        if(to == address(0)) {
+            revert MintToZeroAddress();
+        }
+        if(amount == 0) {
+            revert MintZeroQuantity();
+        }
 
         address operator = _msgSender();
 
@@ -341,7 +359,9 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         address from,
         uint256 id
     ) internal virtual {
-        require(from != address(0), "ERC1155: burn from the zero address");
+        if(from == address(0)){
+            revert BurnFromZeroAddress();
+        }
 
         uint256 amount = 1;
 
@@ -351,7 +371,9 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
 
         _beforeTokenTransfer(operator, from, address(0), ids, amounts, "");
 
-        require(_owned[from].get(id), "ERC1155: burn amount exceeds balance");
+        if(!_owned[from].get(id)) {
+            revert TransferCallerNotOwnerNorApproved();
+        }
 
         _owned[from].unset(id);
 
@@ -445,12 +467,12 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         if (to.isContract()) {
             try IERC1155Receiver(to).onERC1155Received(operator, from, id, amount, data) returns (bytes4 response) {
                 if (response != IERC1155Receiver.onERC1155Received.selector) {
-                    revert("ERC1155: ERC1155Receiver rejected tokens");
+                    revert TransferToNonERC1155ReceiverImplementer();
                 }
             } catch Error(string memory reason) {
                 revert(reason);
             } catch {
-                revert("ERC1155: transfer to non ERC1155Receiver implementer");
+                revert TransferToNonERC1155ReceiverImplementer();
             }
         }
     }
@@ -468,12 +490,12 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
                 bytes4 response
             ) {
                 if (response != IERC1155Receiver.onERC1155BatchReceived.selector) {
-                    revert("ERC1155: ERC1155Receiver rejected tokens");
+                    revert TransferToNonERC1155ReceiverImplementer();
                 }
             } catch Error(string memory reason) {
                 revert(reason);
             } catch {
-                revert("ERC1155: transfer to non ERC1155Receiver implementer");
+                revert TransferToNonERC1155ReceiverImplementer();
             }
         }
     }

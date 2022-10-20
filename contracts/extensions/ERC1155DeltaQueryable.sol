@@ -12,8 +12,6 @@ import "./IERC1155DeltaQueryable.sol";
 abstract contract ERC1155DeltaQueryable is IERC1155DeltaQueryable, ERC1155Delta {
     using BitMaps for BitMaps.BitMap;
 
-    error InvalidQueryRange();
-
 
     /**
      * @dev Returns the number of tokens owned by `owner`.

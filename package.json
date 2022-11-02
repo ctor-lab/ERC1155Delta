@@ -14,6 +14,8 @@
     "@nomiclabs/hardhat-web3": "^2.0.0",
     "@openzeppelin/test-helpers": "^0.5.16",
     "chai": "^4.2.0",
+    "erc721a": "^4.2.3",
+    "erc721psi": "^0.6.1",
     "ethereum-waffle": "^3.0.0",
     "ethers": "^5.0.0",
     "hardhat": "^2.12.0",

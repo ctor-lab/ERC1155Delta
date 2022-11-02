@@ -200,9 +200,8 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC115
 
         address operator = _msgSender();
         uint256[] memory ids = _asSingletonArray(id);
-        uint256[] memory amounts = _asSingletonArray(amount);
 
-        _beforeTokenTransfer(operator, from, to, ids, amounts, data);
+        _beforeTokenTransfer(operator, from, to, ids, data);
 
         if(amount == 1 && _owned[from].get(id)) {
             _owned[from].unset(id);
@@ -213,7 +212,7 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC115
 
         emit TransferSingle(operator, from, to, id, amount);
 
-        _afterTokenTransfer(operator, from, to, ids, amounts, data);
+        _afterTokenTransfer(operator, from, to, ids, data);
 
         _doSafeTransferAcceptanceCheck(operator, from, to, id, amount, data);
     }
@@ -244,7 +243,7 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC115
         }
         address operator = _msgSender();
 
-        _beforeTokenTransfer(operator, from, to, ids, amounts, data);
+        _beforeTokenTransfer(operator, from, to, ids, data);
 
         for (uint256 i = 0; i < ids.length; ++i) {
             uint256 id = ids[i];
@@ -260,7 +259,7 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC115
 
         emit TransferBatch(operator, from, to, ids, amounts);
 
-        _afterTokenTransfer(operator, from, to, ids, amounts, data);
+        _afterTokenTransfer(operator, from, to, ids, data);
 
         _doSafeBatchTransferAcceptanceCheck(operator, from, to, ids, amounts, data);
     }
@@ -317,20 +316,23 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC115
         uint256[] memory ids = new uint256[](amount);
         uint256[] memory amounts = new uint256[](amount);
         uint256 startTokenId = _nextTokenId();
-        
-        for(uint256 i = 0; i < amount; i++) {
-            ids[i] = startTokenId + i;
-            amounts[i] = 1;
-        }
 
-        _beforeTokenTransfer(operator, address(0), to, ids, amounts, data);
+        unchecked {
+            require(type(uint256).max - amount >= startTokenId);
+            for(uint256 i = 0; i < amount; i++) {
+                ids[i] = startTokenId + i;
+                amounts[i] = 1;
+            }
+        }
+        
+        _beforeTokenTransfer(operator, address(0), to, ids, data);
 
         _owned[to].setBatch(startTokenId, amount);
         _currentIndex += amount;
 
         emit TransferBatch(operator, address(0), to, ids, amounts);
 
-        _afterTokenTransfer(operator, address(0), to, ids, amounts, data);
+        _afterTokenTransfer(operator, address(0), to, ids, data);
         _doSafeBatchTransferAcceptanceCheck(operator, address(0), to, ids, amounts, data);
     }
 
@@ -352,13 +354,10 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC115
             revert BurnFromZeroAddress();
         }
 
-        uint256 amount = 1;
-
         address operator = _msgSender();
         uint256[] memory ids = _asSingletonArray(id);
-        uint256[] memory amounts = _asSingletonArray(amount);
 
-        _beforeTokenTransfer(operator, from, address(0), ids, amounts, "");
+        _beforeTokenTransfer(operator, from, address(0), ids, "");
 
         if(!_owned[from].get(id)) {
             revert TransferCallerNotOwnerNorApproved();
@@ -366,9 +365,41 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC115
 
         _owned[from].unset(id);
 
-        emit TransferSingle(operator, from, address(0), id, amount);
+        emit TransferSingle(operator, from, address(0), id, 1);
 
-        _afterTokenTransfer(operator, from, address(0), ids, amounts, "");
+        _afterTokenTransfer(operator, from, address(0), ids, "");
+    }
+
+
+    function _burnBatch(
+        address from,
+        uint256[] memory ids
+    ) internal virtual {
+        if(from == address(0)){
+            revert BurnFromZeroAddress();
+        }
+
+        address operator = _msgSender();
+
+        uint256[] memory amounts = new uint256[](ids.length);
+
+        _beforeTokenTransfer(operator, from, address(0), ids, "");
+
+        unchecked {
+            for(uint256 i = 0; i < ids.length; i++) {
+                amounts[i] = 1;
+                uint256 id = ids[i];
+                if(!_owned[from].get(id)) {
+                    revert TransferCallerNotOwnerNorApproved();
+                }
+                _owned[from].unset(id);
+            }
+        }
+        
+        emit TransferBatch(operator, from, address(0), ids, amounts);
+
+        _afterTokenTransfer(operator, from, address(0), ids, "");
+
     }
 
 
@@ -412,7 +443,6 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC115
         address from,
         address to,
         uint256[] memory ids,
-        uint256[] memory amounts,
         bytes memory data
     ) internal virtual {}
 
@@ -441,7 +471,6 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC115
         address from,
         address to,
         uint256[] memory ids,
-        uint256[] memory amounts,
         bytes memory data
     ) internal virtual {}
 

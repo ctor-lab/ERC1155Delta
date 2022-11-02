@@ -466,14 +466,14 @@ const createTestSuite = ({ contract, constructorArgs }) =>
           it('revert if the token to burn is not owned by an owner', async function () {
             expect(await this.erc1155delta.isOwnerOf(this.addr2.address, this.tokenIdToBurn)).to.be.false;
             await expect(
-              this.erc1155delta.connect(this.addr2).burn(this.addr2.address, this.tokenIdToBurn)
+              this.erc1155delta.connect(this.addr2)['burn(address,uint256)'](this.addr2.address, this.tokenIdToBurn)
             ).to.be.revertedWith("TransferCallerNotOwnerNorApproved");
           });
 
 
           it('burn a token from an owner', async function () {
             expect(await this.erc1155delta.isOwnerOf(this.addr1.address, this.tokenIdToBurn)).to.be.true;
-            await this.erc1155delta.connect(this.addr2).burn(this.addr1.address, this.tokenIdToBurn);
+            await this.erc1155delta.connect(this.addr2)['burn(address,uint256)'](this.addr1.address, this.tokenIdToBurn);
             expect(await this.erc1155delta.isOwnerOf(this.addr1.address, this.tokenIdToBurn)).to.be.false;
           });
         });

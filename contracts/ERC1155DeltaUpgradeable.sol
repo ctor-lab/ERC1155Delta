@@ -158,15 +158,11 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         uint256 amount,
         bytes memory data
     ) public virtual override {
-        //if(!(from == _msgSender() || isApprovedForAll(from, _msgSender()))) {
-        //    revert TransferCallerNotOwnerNorApproved();
-        //}
         if(from == _msgSender() || isApprovedForAll(from, _msgSender())){
             _safeTransferFrom(from, to, id, amount, data);
         } else {
             revert TransferCallerNotOwnerNorApproved();
         }
-        
     }
 
     /**

@@ -2,6 +2,7 @@ const { deployContract, getBlockTimestamp, mineBlockTimestamp, offsettedIndex } 
 const { expect } = require('chai');
 const { BigNumber } = require('ethers');
 const { constants } = require('@openzeppelin/test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const ERC1155_ACCEPTED = '0xf23a6e61';
 const ERC1155_BATCH_ACCEPTED = '0xbc197c81';

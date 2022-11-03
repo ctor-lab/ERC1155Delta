@@ -32,6 +32,11 @@ interface IERC1155Delta {
     error BurnFromZeroAddress();
 
     /**
+     * Cannot burn from the address that doesn't owne the token.
+     */
+    error BurnFromNonOnwerAddress();
+
+    /**
      * The caller must own the token or be an approved operator.
      */
     error TransferCallerNotOwnerNorApproved();

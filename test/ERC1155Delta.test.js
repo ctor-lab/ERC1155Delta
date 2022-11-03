@@ -1,7 +1,3 @@
-const { deployContract, getBlockTimestamp, mineBlockTimestamp, offsettedIndex } = require('./helpers.js');
-const { expect } = require('chai');
-const { BigNumber } = require('ethers');
-const { constants } = require('@openzeppelin/test-helpers');
 const { ethers } = require('hardhat');
 const { ZERO_ADDRESS } = constants;
 
@@ -466,15 +462,40 @@ const createTestSuite = ({ contract, constructorArgs }) =>
           it('revert if the token to burn is not owned by an owner', async function () {
             expect(await this.erc1155delta.isOwnerOf(this.addr2.address, this.tokenIdToBurn)).to.be.false;
             await expect(
-              this.erc1155delta.connect(this.addr2)['burn(address,uint256)'](this.addr2.address, this.tokenIdToBurn)
-            ).to.be.revertedWith("TransferCallerNotOwnerNorApproved");
+              this.erc1155delta['burn(address,uint256)'](this.addr2.address, this.tokenIdToBurn)
+            ).to.be.revertedWith("BurnFromNonOnwerAddress");
           });
 
 
           it('burn a token from an owner', async function () {
             expect(await this.erc1155delta.isOwnerOf(this.addr1.address, this.tokenIdToBurn)).to.be.true;
-            await this.erc1155delta.connect(this.addr2)['burn(address,uint256)'](this.addr1.address, this.tokenIdToBurn);
+            await this.erc1155delta['burn(address,uint256)'](this.addr1.address, this.tokenIdToBurn);
             expect(await this.erc1155delta.isOwnerOf(this.addr1.address, this.tokenIdToBurn)).to.be.false;
+          });
+        });
+
+        describe('_burnBatch', async function () {
+          beforeEach(function () {
+            this.tokenIdsToBurn = [offsetted(1), offsetted(2)];
+          });
+
+          //TODO check event
+
+          it('revert if the token to burn is not owned by an owner', async function () {
+            expect(await this.erc1155delta.isOwnerOf(this.addr1.address, this.tokenIdsToBurn[0])).to.be.false;
+            expect(await this.erc1155delta.isOwnerOf(this.addr1.address, this.tokenIdsToBurn[1])).to.be.false;
+            await expect(
+              this.erc1155delta['burnBatch(address,uint256[])'](this.addr1.address, this.tokenIdsToBurn)
+            ).to.be.revertedWith("BurnFromNonOnwerAddress");
+          });
+
+
+          it('burn tokens from an owner', async function () {
+            expect(await this.erc1155delta.isOwnerOf(this.addr2.address, this.tokenIdsToBurn[0])).to.be.true;
+            expect(await this.erc1155delta.isOwnerOf(this.addr2.address, this.tokenIdsToBurn[1])).to.be.true;
+            await this.erc1155delta['burnBatch(address,uint256[])'](this.addr2.address, this.tokenIdsToBurn);
+            expect(await this.erc1155delta.isOwnerOf(this.addr2.address, this.tokenIdsToBurn[0])).to.be.false;
+            expect(await this.erc1155delta.isOwnerOf(this.addr2.address, this.tokenIdsToBurn[1])).to.be.false;
           });
         });
 
@@ -632,59 +653,17 @@ const createTestSuite = ({ contract, constructorArgs }) =>
     });
   };
 
-describe('ERC1155DeltaMock', createTestSuite({ contract: 'ERC1155DeltaMock', constructorArgs: [""] }));
+describe('ERC1155Delta', createTestSuite({ contract: 'ERC1155DeltaMock', constructorArgs: [""] }));
 
 describe(
-  'ERC721A override _startTokenId()',
+  'ERC1155Delta override _startTokenId()',
   createTestSuite({ contract: 'ERC1155DeltaStartTokenIdMock', constructorArgs: [""] })
 );
 
-describe('ERC1155DeltaQueryableMock', createTestSuite({ contract: 'ERC1155DeltaMock', constructorArgs: [""] }));
+describe('ERC1155DeltaQueryable', createTestSuite({ contract: 'ERC1155DeltaMock', constructorArgs: [""] }));
 
+describe('ERC1155DeltaUpgradeableWithInit', createTestSuite({ contract: 'ERC1155DeltaMockUpgradeableWithInit', constructorArgs: [""] }));
 
+describe('ERC1155DeltaUpgradeable override _startTokenId()', createTestSuite({ contract: 'ERC1155DeltaStartTokenIdMockUpgradeableWithInit', constructorArgs: [""] }));
 
-/**
-describe('ERC721A with ERC2309', async function () {
-  beforeEach(async function () {
-    const [owner, addr1] = await ethers.getSigners();
-    this.owner = owner;
-    this.addr1 = addr1;
-
-    let args;
-    args = ['Azuki', 'AZUKI', this.owner.address, 1, true];
-    this.erc1155deltaMint1 = await deployContract('ERC721AWithERC2309Mock', args);
-    args = ['Azuki', 'AZUKI', this.owner.address, 10, true];
-    this.erc1155deltaMint10 = await deployContract('ERC721AWithERC2309Mock', args);
-  });
-
-  it('emits a ConsecutiveTransfer event for single mint', async function () {    
-    expect(this.erc1155deltaMint1.deployTransaction)
-      .to.emit(this.erc1155deltaMint1, 'ConsecutiveTransfer')
-      .withArgs(0, 0, ZERO_ADDRESS, this.owner.address);
-  });
-
-  it('emits a ConsecutiveTransfer event for a batch mint', async function () {    
-    expect(this.erc1155deltaMint10.deployTransaction)
-      .to.emit(this.erc1155deltaMint10, 'ConsecutiveTransfer')
-      .withArgs(0, 9, ZERO_ADDRESS, this.owner.address);
-  });
-
-  it('requires quantity to be below mint limit', async function () {
-    let args;
-    const mintLimit = 5000;
-    args = ['Azuki', 'AZUKI', this.owner.address, mintLimit, true];
-    await deployContract('ERC721AWithERC2309Mock', args);
-    args = ['Azuki', 'AZUKI', this.owner.address, mintLimit + 1, true];
-    await expect(deployContract('ERC721AWithERC2309Mock', args)).to.be.revertedWith('MintERC2309QuantityExceedsLimit');
-  })
-
-  it('rejects mints to the zero address', async function () {
-    let args = ['Azuki', 'AZUKI', ZERO_ADDRESS, 1, true];
-    await expect(deployContract('ERC721AWithERC2309Mock', args)).to.be.revertedWith('MintToZeroAddress');
-  });
-
-  it('requires quantity to be greater than 0', async function () {
-    let args = ['Azuki', 'AZUKI', this.owner.address, 0, true];
-    await expect(deployContract('ERC721AWithERC2309Mock', args)).to.be.revertedWith('MintZeroQuantity');
-  });
-}); */
+describe('ERC1155DeltaQueryableUpgradeable', createTestSuite({ contract: 'ERC1155DeltaMockUpgradeableWithInit', constructorArgs: [""] }));

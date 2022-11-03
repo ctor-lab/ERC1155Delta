@@ -360,7 +360,7 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC115
         _beforeTokenTransfer(operator, from, address(0), ids, "");
 
         if(!_owned[from].get(id)) {
-            revert TransferCallerNotOwnerNorApproved();
+            revert BurnFromNonOnwerAddress();
         }
 
         _owned[from].unset(id);
@@ -370,7 +370,16 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC115
         _afterTokenTransfer(operator, from, address(0), ids, "");
     }
 
-
+    /**
+     * @dev Destroys tokens of token types in `ids` from `from`
+     *
+     * Emits a {TransferBatch} event.
+     *
+     * Requirements:
+     *
+     * - `from` cannot be the zero address.
+     * - `from` must have the token of token types in `ids`.
+     */
     function _burnBatch(
         address from,
         uint256[] memory ids
@@ -390,7 +399,7 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC115
                 amounts[i] = 1;
                 uint256 id = ids[i];
                 if(!_owned[from].get(id)) {
-                    revert TransferCallerNotOwnerNorApproved();
+                    revert BurnFromNonOnwerAddress();
                 }
                 _owned[from].unset(id);
             }
@@ -518,10 +527,8 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC115
         }
     }
 
-    function _asSingletonArray(uint256 element) private pure returns (uint256[] memory) {
-        uint256[] memory array = new uint256[](1);
+    function _asSingletonArray(uint256 element) private pure returns (uint256[] memory array) {
+        array = new uint256[](1);
         array[0] = element;
-
-        return array;
     }
 }

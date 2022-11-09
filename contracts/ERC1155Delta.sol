@@ -287,6 +287,13 @@ contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC115
         _uri = newuri;
     }
 
+    function _mint(
+        address to,
+        uint256 amount
+    ) internal virtual {
+        _mint(to, amount, "");
+    }
+
     /**
      * @dev Creates `amount` tokens, and assigns them to `to`.
      *

@@ -294,6 +294,13 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         _uri = newuri;
     }
 
+    function _mint(
+        address to,
+        uint256 amount
+    ) internal virtual {
+        _mint(to, amount, "");
+    }
+
     /**
      * @dev Creates `amount` tokens, and assigns them to `to`.
      *

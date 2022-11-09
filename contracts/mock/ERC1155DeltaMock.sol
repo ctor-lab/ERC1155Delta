@@ -67,4 +67,11 @@ contract ERC1155DeltaMock is ERC1155Delta {
         return _startTokenId();
     }
 
+    function airdrop(address[] calldata tos) public {
+        unchecked {
+            for(uint256 i=0; i<tos.length; i++) {
+                _mint(tos[i], 1);
+            }
+        }
+    }
 }

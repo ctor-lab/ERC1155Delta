@@ -6,7 +6,7 @@ import "../ERC1155DeltaUpgradeable.sol";
 
 contract ERC1155DeltaMockUpgradeableWithInit is ERC1155DeltaUpgradeable {
 
-    constructor(string memory uri_) payable initializer  {
+    constructor(string memory uri_) initializer  {
         __ERC1155Delta_init(uri_);
     }
 

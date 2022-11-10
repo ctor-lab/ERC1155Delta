@@ -34,6 +34,7 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
     // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
     string private _uri;
 
+    // The next token ID to be minted.
     uint256 private _currentIndex;
 
     /**
@@ -48,18 +49,31 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         _currentIndex = _startTokenId();
     }
 
+    /**
+     * @dev Returns the starting token ID.
+     * To change the starting token ID, please override this function.
+     */
     function _startTokenId() internal pure virtual returns (uint256) {
         return 0;
     }
 
+    /**
+     * @dev Returns the next token ID to be minted.
+     */
     function _nextTokenId() internal view returns (uint256) {
         return _currentIndex;
     }
 
+    /**
+     * @dev Returns the total amount of tokens minted in the contract.
+     */
     function _totalMinted() internal view returns (uint256) {
         return _nextTokenId() - _startTokenId();
     }
 
+    /**
+     * @dev Returns true if the account owns the `id` token.
+     */
     function isOwnerOf(address account, uint256 id) public view virtual override returns(bool) {
         return _owned[account].get(id);
     }

@@ -96,29 +96,10 @@ const createTestSuite = ({ contract, constructorArgs }) =>
 
         
         describe('balanceOf', async function () {
-            /**
-          it('returns the amount for a given address', async function () {
-            expect(await this.erc1155delta.balanceOf(this.owner.address)).to.equal('0');
-            expect(await this.erc1155delta.balanceOf(this.addr1.address)).to.equal(this.addr1.expected.mintCount);
-            expect(await this.erc1155delta.balanceOf(this.addr2.address)).to.equal(this.addr2.expected.mintCount);
-            expect(await this.erc1155delta.balanceOf(this.addr3.address)).to.equal(this.addr3.expected.mintCount);
-          });
-
-          it('returns correct amount with transferred tokens', async function () {
-            const tokenIdToTransfer = this.addr2.expected.tokens[0];
-            await this.erc1155delta
-              .connect(this.addr2)
-              .transferFrom(this.addr2.address, this.addr3.address, tokenIdToTransfer);
-            // sanity check
-            expect(await this.erc1155delta.ownerOf(tokenIdToTransfer)).to.equal(this.addr3.address);
-
-            expect(await this.erc1155delta.balanceOf(this.addr2.address)).to.equal(this.addr2.expected.mintCount - 1);
-            expect(await this.erc1155delta.balanceOf(this.addr3.address)).to.equal(this.addr3.expected.mintCount + 1);
-          }); */
 
           it('throws an exception for the 0 address', async function () {
-            await expect(this.erc1155delta.balanceOf(ZERO_ADDRESS, "0")).to.be.revertedWith('BalanceQueryForZeroAddress');
-            await expect(this.erc1155delta.balanceOf(ZERO_ADDRESS, "1")).to.be.revertedWith('BalanceQueryForZeroAddress');
+            await expect(this.erc1155delta["balanceOf(address,uint256)"](ZERO_ADDRESS, "0")).to.be.revertedWith('BalanceQueryForZeroAddress');
+            await expect(this.erc1155delta["balanceOf(address,uint256)"](ZERO_ADDRESS, "1")).to.be.revertedWith('BalanceQueryForZeroAddress');
           });
         }); 
 
@@ -199,11 +180,6 @@ const createTestSuite = ({ contract, constructorArgs }) =>
                 .to.emit(this.erc1155delta, 'TransferSingle')
                 .withArgs(this.addr2.address, this.from, this.to.address, this.tokenId, 1);
             });
-
-            //TODO queryable
-            //it('adjusts owners balances', async function () {
-            //  expect(await this.erc1155delta.balanceOf(this.from)).to.be.equal(1);
-            //});
           };
 
           const testSuccessfulTransferBatch = function (transferToContract = true) {
@@ -236,10 +212,6 @@ const createTestSuite = ({ contract, constructorArgs }) =>
                 .withArgs(this.addr2.address, this.from, this.to.address, this.ids, this.amounts);
             });
 
-            //TODO queryable
-            //it('adjusts owners balances', async function () {
-            //  expect(await this.erc1155delta.balanceOf(this.from)).to.be.equal(1);
-            //});
           };
 
           const testUnsuccessfulTransferSingle = function () {
@@ -515,9 +487,6 @@ const createTestSuite = ({ contract, constructorArgs }) =>
           beforeEach(async function () {
             this.minter = mintForContract ? this.receiver : this.addr1;
 
-            //TODO externsion
-            //this.balanceBefore = (await this.erc1155delta.balanceOf(this.minter.address)).toNumber();
-
             this.mintTx = await this.erc1155delta["mint(address,uint256)"](this.minter.address, quantity);
             this.accountArray = [];
             this.idArray = [];
@@ -556,9 +525,6 @@ const createTestSuite = ({ contract, constructorArgs }) =>
                     await this.erc1155delta.balanceOf(this.minter.address, tokenId)
                 ).to.equal(1);
             } 
-
-            //TODO extension
-            //expect(await this.erc1155delta.balanceOf(this.minter.address)).to.be.equal(this.balanceBefore + quantity);
           });
 
 

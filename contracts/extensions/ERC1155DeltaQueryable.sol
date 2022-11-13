@@ -54,7 +54,7 @@ abstract contract ERC1155DeltaQueryable is IERC1155DeltaQueryable, ERC1155Delta 
     ) public view virtual override returns (uint256[] memory) {
         unchecked {
             if (start >= stop) revert InvalidQueryRange();
-            uint256 tokenIdsIdx = 0;
+            
             
             // Set `start = max(start, _startTokenId())`.
             if (start < _startTokenId()) {
@@ -66,12 +66,19 @@ abstract contract ERC1155DeltaQueryable is IERC1155DeltaQueryable, ERC1155Delta 
             if (stop > stopLimit) {
                 stop = stopLimit;
             }
-            uint256 tokenIdsLength = balanceOf(owner, start, stop);
+
+            uint256 tokenIdsLength;
+            if(start < stop) {
+                tokenIdsLength = balanceOf(owner, start, stop);
+            } else {
+                tokenIdsLength = 0;
+            }
+            
             uint256[] memory tokenIds = new uint256[](tokenIdsLength);
 
             BitMaps.BitMap storage bmap = _owned[owner];
-
-            for (uint256 i = start; tokenIdsIdx != tokenIdsLength; ++i) {
+            
+            for ((uint256 i, uint256 tokenIdsIdx) = (start, 0); tokenIdsIdx != tokenIdsLength; ++i) {
                 if(bmap.get(i) ) {
                     tokenIds[tokenIdsIdx++] = i;
                 }
@@ -91,6 +98,9 @@ abstract contract ERC1155DeltaQueryable is IERC1155DeltaQueryable, ERC1155Delta 
      * an out-of-gas error (10K collections should be fine).
      */
     function tokensOfOwner(address owner) public view virtual override returns (uint256[] memory) {
+        if(_totalMinted() == 0) {
+            return new uint256[](0);
+        }
         return tokensOfOwnerIn(owner, _startTokenId(), _nextTokenId());
     }
 }

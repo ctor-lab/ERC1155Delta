@@ -216,7 +216,7 @@ describe(
 describe(
     'ERC1155DeltaQueryable override _startTokenId()',
     createTestSuite({
-      contract: 'ERC1155DeltaQueryableMock',
+      contract: 'ERC1155DeltaQueryableStartTokenIdMock',
       constructorArgs: [''],
     })
 );

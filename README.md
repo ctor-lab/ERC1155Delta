@@ -11,3 +11,8 @@ npm install --save-dev erc721psi
 ```
 yarn add --dev erc721psi
 ```
+
+## Acknoledgement
+This repository is inspired by or directly modified from the following projects:
+- Openzeppelin SDK
+- ERC721A

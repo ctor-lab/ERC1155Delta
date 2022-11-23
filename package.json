@@ -4,9 +4,6 @@
   "author": "Ctor Lab Ltd. <ctor.xyz@gmail.com>",
   "license": "MIT",
   "version": "0.0.1",
-  "files": [
-    "/contracts/**/*.sol"
-  ],
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",
     "@nomiclabs/hardhat-truffle5": "^2.0.6",
@@ -18,9 +15,10 @@
     "erc721psi": "^0.6.1",
     "ethereum-waffle": "^3.0.0",
     "ethers": "^5.0.0",
-    "hardhat": "^2.12.0",
+    "hardhat": "^2.12.2",
     "hardhat-gas-reporter": "^1.0.9",
     "solidity-coverage": "^0.8.2",
+    "solidity-docgen": "^0.6.0-beta.29",
     "web3": "^1.7.4"
   },
   "dependencies": {

@@ -1,6 +1,8 @@
 # ERC1155Delta
 [![Test](https://github.com/estarriolvetch/ERC1155Delta/actions/workflows/test.yml/badge.svg)](https://github.com/estarriolvetch/ERC1155Delta/actions/workflows/test.yml)
 
+[![Publish Package to npmjs](https://github.com/ctor-lab/ERC1155Delta/actions/workflows/deploy_npm.yml/badge.svg)](https://github.com/ctor-lab/ERC1155Delta/actions/workflows/deploy_npm.yml)
+
 
 
  ERC1155Delta is an NFT implementation/standard that is highly optimized for gas comsumption and has less impact on the blockchain storage space. ERC1155Delta is meant to be an drop-in replacement for ERC721. Like ERC721, each ERC1155Delta token is unique. 

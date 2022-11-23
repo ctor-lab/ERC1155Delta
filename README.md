@@ -6,7 +6,7 @@
  ERC1155Delta is an NFT implementation/standard that is highly optimized for gas comsumption and has less impact on the blockchain storage space. ERC1155Delta is meant to be an drop-in replacement for ERC721. Like ERC721, each ERC1155Delta token is unique. 
 
 - Website: https://erc1155delta.ctor.xyz/
-- Litepaper: 
+- Litepaper: https://mirror.xyz/ctor.xyz/pW1DxSNdaabCyHwVSfDrnlj5LLRzsA8TEfkmR-HP5PE
 
 
 ## Installaion

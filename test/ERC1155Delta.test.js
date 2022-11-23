@@ -593,9 +593,9 @@ const createTestSuite = ({ contract, constructorArgs }) =>
 
             it('reverts for non-receivers', async function () {
               const nonReceiver = this.erc1155delta;
-              await expect(this.erc1155delta.functions['mint(address,uint256)'](nonReceiver.address, 1)).to.be.reverted;//revertedWith(
-              //  'TransferToNonERC721ReceiverImplementer'
-              //);
+              await expect(this.erc1155delta.functions['mint(address,uint256)'](nonReceiver.address, 1)).to.be.revertedWith(
+                'TransferToNonERC1155ReceiverImplementer'
+              );
             });
 
             it('reverts when the receiver reverted', async function () {
@@ -607,15 +607,15 @@ const createTestSuite = ({ contract, constructorArgs }) =>
             it('reverts if the receiver returns the wrong value', async function () {
               await expect(
                 this.erc1155delta.functions['mint(address,uint256,bytes)'](this.receiver.address, 1, '0x02')
-              ).to.be.reverted;//revertedWith('TransferToNonERC721ReceiverImplementer');
+              ).to.be.revertedWith('TransferToNonERC1155ReceiverImplementer');
             });
 
-            //TODO if reentrancy does no harm to the contract states, should we implement the guard?
-            //it('reverts with reentrant call', async function () {
-            //  await expect(
-            //    this.erc1155delta.functions['mint(address,uint256,bytes)'](this.receiver.address, 1, '0x03')
-            //  ).to.be.reverted;
-            //});
+            
+            it('reverts with reentrant call', async function () {
+              await expect(
+                this.erc1155delta.functions['mint(address,uint256,bytes)'](this.receiver.address, 1, '0x03')
+              ).to.be.reverted;
+            });
           });
         });
       });

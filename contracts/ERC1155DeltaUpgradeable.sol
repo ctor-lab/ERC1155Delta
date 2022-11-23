@@ -361,7 +361,10 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         emit TransferBatch(operator, address(0), to, ids, amounts);
 
         _afterTokenTransfer(operator, address(0), to, ids, data);
+        
+        uint256 end = _currentIndex;
         _doSafeBatchTransferAcceptanceCheck(operator, address(0), to, ids, amounts, data);
+        if (_currentIndex != end) revert();
     }
 
     /**

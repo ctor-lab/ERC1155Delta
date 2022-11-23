@@ -24,6 +24,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "^4.7.0",
     "@openzeppelin/contracts-upgradeable": "^4.7.0",
+    "closedsea": "^0.0.15",
     "solidity-bits": "^0.4.0"
   }
 }

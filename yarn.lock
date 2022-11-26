@@ -3134,6 +3134,11 @@ clone@2.1.2, clone@^2.0.0:
   resolved "https://registry.yarnpkg.com/clone/-/clone-2.1.2.tgz#1b7f4b9f591f1e8f83670401600345a02887435f"
   integrity sha512-3Pe/CF1Nn94hyhIYpjtiLhdCoEoz0DqQ+988E9gmeEdQZlojxnOb74wctFyuwWQHzqyf9X7C7MG8juUpqBJT8w==
 
+closedsea@^0.0.15:
+  version "0.0.15"
+  resolved "https://registry.yarnpkg.com/closedsea/-/closedsea-0.0.15.tgz#1a64fee75f91c21fa8c30c66dff2d1774b951579"
+  integrity sha512-ikvs6BLvGp9LFmKIxQxfXk0dslUzju0neoApxgEjwuofHloSeg4tR7CC7DyuTp8icZuDZHBlMb86VuGvc+XVYg==
+
 code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"

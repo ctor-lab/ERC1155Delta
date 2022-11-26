@@ -8,6 +8,7 @@
 - Website: https://erc1155delta.ctor.xyz/
 - Litepaper: https://mirror.xyz/ctor.xyz/pW1DxSNdaabCyHwVSfDrnlj5LLRzsA8TEfkmR-HP5PE
 
+![](https://mirror.xyz/_next/image?url=https%3A%2F%2Fimages.mirror-media.xyz%2Fpublication-images%2FEHujxay_jCt2FCClLW1rY.png&w=640&q=90)
 
 ## Installaion
 ### npm

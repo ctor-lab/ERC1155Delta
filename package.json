@@ -22,8 +22,8 @@
     "web3": "^1.7.4"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.7.0",
-    "@openzeppelin/contracts-upgradeable": "^4.7.0",
+    "@openzeppelin/contracts": "^4.8.0",
+    "@openzeppelin/contracts-upgradeable": "^4.8.0",
     "solidity-bits": "^0.4.0"
   }
 }

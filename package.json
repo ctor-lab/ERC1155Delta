@@ -22,14 +22,9 @@
     "web3": "^1.7.4"
   },
   "dependencies": {
-<<<<<<< HEAD
     "@openzeppelin/contracts": "^4.8.0",
     "@openzeppelin/contracts-upgradeable": "^4.8.0",
-=======
-    "@openzeppelin/contracts": "^4.7.0",
-    "@openzeppelin/contracts-upgradeable": "^4.7.0",
     "closedsea": "^0.0.15",
->>>>>>> 9f62bb61a3d77892fe2678e53dd84d08129068a7
     "solidity-bits": "^0.4.0"
   }
 }

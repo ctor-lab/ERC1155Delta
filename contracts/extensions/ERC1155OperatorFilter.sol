@@ -9,7 +9,7 @@ import "../ERC1155Delta.sol";
 
 abstract contract ERC1155DeltaOperatorFilter is ERC1155Delta, OperatorFilterer {
     
-    constructor(string memory uri_) {
+    constructor() {
         _registerForOperatorFiltering();
     }
 

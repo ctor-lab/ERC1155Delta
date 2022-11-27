@@ -7,9 +7,9 @@ import "closedsea/src/OperatorFilterer.sol";
 
 import "../ERC1155Delta.sol";
 
-contract ERC1155DeltaOperatorFilter is ERC1155Delta, OperatorFilterer {
+abstract contract ERC1155DeltaOperatorFilter is ERC1155Delta, OperatorFilterer {
     
-    constructor(string memory uri_) ERC1155Delta(uri_) {
+    constructor(string memory uri_) {
         _registerForOperatorFiltering();
     }
 

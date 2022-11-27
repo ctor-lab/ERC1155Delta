@@ -7,7 +7,7 @@ import "closedsea/src/OperatorFilterer.sol";
 
 import "../ERC1155DeltaUpgradeable.sol";
 
-contract ERC1155DeltaOperatorFilter is ERC1155DeltaUpgradeable, OperatorFilterer {
+abstract contract ERC1155DeltaOperatorFilter is ERC1155DeltaUpgradeable, OperatorFilterer {
 
     function __ERC1155DeltaOperatorFilter_init() internal onlyInitializing {
         __ERC1155DeltaOperatorFilter_init_unchained();

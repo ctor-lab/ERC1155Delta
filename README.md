@@ -13,11 +13,11 @@
 ## Installaion
 ### npm
 ```
-npm install --save-dev erc1155delta
+npm install erc1155delta
 ```
 ### yarn
 ```
-yarn add --dev erc1155delta
+yarn add erc1155delta
 ```
 
 

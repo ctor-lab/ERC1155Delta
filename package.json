@@ -22,9 +22,11 @@
     "web3": "^1.7.4"
   },
   "dependencies": {
+    "@chainlink/contracts": "^0.5.1",
     "@openzeppelin/contracts": "^4.8.0",
     "@openzeppelin/contracts-upgradeable": "^4.8.0",
     "closedsea": "^0.0.15",
+    "fpe-map": "^0.1.2",
     "solidity-bits": "^0.4.0"
   }
 }

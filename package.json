@@ -25,6 +25,7 @@
     "@openzeppelin/contracts": "^4.8.0",
     "@openzeppelin/contracts-upgradeable": "^4.8.0",
     "closedsea": "^0.0.15",
+    "solady": "^0.0.78",
     "solidity-bits": "^0.4.0"
   }
 }

@@ -14,14 +14,14 @@ import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeabl
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-import "solidity-bits/contracts/BitMaps.sol";
+import "solady/src/utils/LibBitmap.sol";
 
 import "./IERC1155Delta.sol";
 
 library ERC1155DeltaStorage {
     struct Layout {
         // Mapping from accout to owned tokens
-        mapping(address => BitMaps.BitMap) _owned;
+        mapping(address => LibBitmap.Bitmap) _owned;
         
         // Mapping from account to operator approvals
         mapping(address => mapping(address => bool)) _operatorApprovals;
@@ -47,9 +47,8 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
     IERC1155MetadataURIUpgradeable, IERC1155Delta {
 
     using AddressUpgradeable for address;
-    using BitMaps for BitMaps.BitMap;
+    using LibBitmap for LibBitmap.Bitmap;
 
-    
 
     /**
      * @dev See {_setURI}.

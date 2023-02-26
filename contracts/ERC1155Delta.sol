@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
-import "solidity-bits/contracts/BitMaps.sol";
+import "solady/src/utils/LibBitmap.sol";
 
 import "./IERC1155Delta.sol";
 
@@ -20,10 +20,10 @@ import "./IERC1155Delta.sol";
 contract ERC1155Delta is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC1155Delta {
 
     using Address for address;
-    using BitMaps for BitMaps.BitMap;
+    using LibBitmap for LibBitmap.Bitmap;
 
     // Mapping from accout to owned tokens
-    mapping(address => BitMaps.BitMap) internal _owned;
+    mapping(address => LibBitmap.Bitmap) internal _owned;
     
     // Mapping from account to operator approvals
     mapping(address => mapping(address => bool)) private _operatorApprovals;

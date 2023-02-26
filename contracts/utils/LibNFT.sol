@@ -21,7 +21,7 @@ library LibNFT {
         }
     }
 
-    function isOwnerOf(address nft, address account, uint256 tokenId) internal returns (bool) {
+    function isOwnerOf(address nft, address account, uint256 tokenId) internal view returns (bool) {
         if (isERC1155Delta(nft)) {
             return IERC1155Delta(nft).isOwnerOf(account, tokenId);
         } else {

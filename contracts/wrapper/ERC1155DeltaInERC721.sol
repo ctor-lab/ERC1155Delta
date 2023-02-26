@@ -58,11 +58,11 @@ contract ERC1155DeltaInERC721 is IOwnable, ERC1155Receiver, ERC721 {
     }
 
     function onERC1155Received(
-        address operator,
+        address /*operator*/,
         address from,
         uint256 id,
         uint256 value,
-        bytes calldata data
+        bytes calldata /*data*/
     ) public virtual override returns (bytes4) {
         require(msg.sender == erc115delta, "ERC1155DeltaInERC721: Not from the ERC1155Delta contract");
         require(value == 1, "ERC1155DeltaInERC721: Invalid amoount");
@@ -71,11 +71,11 @@ contract ERC1155DeltaInERC721 is IOwnable, ERC1155Receiver, ERC721 {
     }
 
     function onERC1155BatchReceived(
-        address operator,
+        address /*operator*/,
         address from,
         uint256[] calldata ids,
         uint256[] calldata values,
-        bytes calldata data
+        bytes calldata /*data*/
     ) public virtual override returns (bytes4) {
         require(msg.sender == erc115delta, "ERC1155DeltaInERC721: Not from the ERC1155Delta contract");
         unchecked {

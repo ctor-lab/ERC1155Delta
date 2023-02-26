@@ -31,7 +31,7 @@ abstract contract ERC1155DeltaQueryableUpgradeable is IERC1155DeltaQueryable, ER
      * - `start < stop`
      */
     function balanceOf(address owner, uint256 start, uint256 stop) public view virtual override returns (uint256) {
-        return _owned[owner].popcountB(start, stop - start);
+        return ERC1155DeltaStorage.layout()._owned[owner].popcountB(start, stop - start);
     }
 
 
@@ -76,7 +76,7 @@ abstract contract ERC1155DeltaQueryableUpgradeable is IERC1155DeltaQueryable, ER
             
             uint256[] memory tokenIds = new uint256[](tokenIdsLength);
 
-            BitMaps.BitMap storage bmap = _owned[owner];
+            BitMaps.BitMap storage bmap = ERC1155DeltaStorage.layout()._owned[owner];
             
             for ((uint256 i, uint256 tokenIdsIdx) = (start, 0); tokenIdsIdx != tokenIdsLength; ++i) {
                 if(bmap.get(i) ) {

@@ -14,28 +14,41 @@ import "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeabl
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-import "solidity-bits/contracts/BitMaps.sol";
+import "solady/src/utils/LibBitmap.sol";
 
 import "./IERC1155Delta.sol";
 
+library ERC1155DeltaStorage {
+    struct Layout {
+        // Mapping from accout to owned tokens
+        mapping(address => LibBitmap.Bitmap) _owned;
+        
+        // Mapping from account to operator approvals
+        mapping(address => mapping(address => bool)) _operatorApprovals;
+
+        // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
+        string _uri;
+
+        // The next token ID to be minted.
+        uint256 _currentIndex;
+    }
+
+    bytes32 internal constant STORAGE_SLOT = keccak256('ERC1155Delta.contracts.storage.ERC1155Delta');
+    
+    function layout() internal pure returns (Layout storage l) {
+        bytes32 slot = STORAGE_SLOT;
+        assembly {
+            l.slot := slot
+        }
+    }
+}
 
 contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Upgradeable, IERC1155Upgradeable, 
     IERC1155MetadataURIUpgradeable, IERC1155Delta {
 
     using AddressUpgradeable for address;
-    using BitMaps for BitMaps.BitMap;
+    using LibBitmap for LibBitmap.Bitmap;
 
-    // Mapping from accout to owned tokens
-    mapping(address => BitMaps.BitMap) internal _owned;
-    
-    // Mapping from account to operator approvals
-    mapping(address => mapping(address => bool)) private _operatorApprovals;
-
-    // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
-    string private _uri;
-
-    // The next token ID to be minted.
-    uint256 private _currentIndex;
 
     /**
      * @dev See {_setURI}.
@@ -46,7 +59,7 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
 
     function __ERC1155Delta_init_unchained(string memory uri_) internal onlyInitializing {
         _setURI(uri_);
-        _currentIndex = _startTokenId();
+        ERC1155DeltaStorage.layout()._currentIndex = _startTokenId();
     }
 
     /**
@@ -61,7 +74,7 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
      * @dev Returns the next token ID to be minted.
      */
     function _nextTokenId() internal view returns (uint256) {
-        return _currentIndex;
+        return ERC1155DeltaStorage.layout()._currentIndex;
     }
 
     /**
@@ -75,7 +88,7 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
      * @dev Returns true if the account owns the `id` token.
      */
     function isOwnerOf(address account, uint256 id) public view virtual override returns(bool) {
-        return _owned[account].get(id);
+        return ERC1155DeltaStorage.layout()._owned[account].get(id);
     }
 
     /**
@@ -100,7 +113,7 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
      * actual token type ID.
      */
     function uri(uint256) public view virtual override returns (string memory) {
-        return _uri;
+        return ERC1155DeltaStorage.layout()._uri;
     }
 
     /**
@@ -114,7 +127,7 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         if(account == address(0)) {
             revert BalanceQueryForZeroAddress();
         }
-        if(_owned[account].get(id)) {
+        if(ERC1155DeltaStorage.layout()._owned[account].get(id)) {
             return 1;
         } else {
             return 0;
@@ -159,7 +172,7 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
      * @dev See {IERC1155-isApprovedForAll}.
      */
     function isApprovedForAll(address account, address operator) public view virtual override returns (bool) {
-        return _operatorApprovals[account][operator];
+        return ERC1155DeltaStorage.layout()._operatorApprovals[account][operator];
     }
 
     /**
@@ -222,18 +235,18 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         address operator = _msgSender();
         uint256[] memory ids = _asSingletonArray(id);
 
-        _beforeTokenTransfer(operator, from, to, ids, data);
+        _beforeTokenTransfer(operator, from, to, ids);
 
-        if(amount == 1 && _owned[from].get(id)) {
-            _owned[from].unset(id);
-            _owned[to].set(id);
+        if(amount == 1 && ERC1155DeltaStorage.layout()._owned[from].get(id)) {
+            ERC1155DeltaStorage.layout()._owned[from].unset(id);
+            ERC1155DeltaStorage.layout()._owned[to].set(id);
         } else {
             revert TransferFromIncorrectOwnerOrInvalidAmount();
         } 
 
         emit TransferSingle(operator, from, to, id, amount);
 
-        _afterTokenTransfer(operator, from, to, ids, data);
+        _afterTokenTransfer(operator, from, to, ids);
 
         _doSafeTransferAcceptanceCheck(operator, from, to, id, amount, data);
     }
@@ -264,15 +277,15 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         }
         address operator = _msgSender();
 
-        _beforeTokenTransfer(operator, from, to, ids, data);
+        _beforeTokenTransfer(operator, from, to, ids);
 
         for (uint256 i = 0; i < ids.length; ++i) {
             uint256 id = ids[i];
             uint256 amount = amounts[i];
 
-            if(amount == 1 && _owned[from].get(id)) {
-                _owned[from].unset(id);
-                _owned[to].set(id);
+            if(amount == 1 && ERC1155DeltaStorage.layout()._owned[from].get(id)) {
+                ERC1155DeltaStorage.layout()._owned[from].unset(id);
+                ERC1155DeltaStorage.layout()._owned[to].set(id);
             } else {
                 revert TransferFromIncorrectOwnerOrInvalidAmount();
             }
@@ -280,7 +293,7 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
 
         emit TransferBatch(operator, from, to, ids, amounts);
 
-        _afterTokenTransfer(operator, from, to, ids, data);
+        _afterTokenTransfer(operator, from, to, ids);
 
         _doSafeBatchTransferAcceptanceCheck(operator, from, to, ids, amounts, data);
     }
@@ -305,7 +318,7 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
      * this function emits no events.
      */
     function _setURI(string memory newuri) internal virtual {
-        _uri = newuri;
+        ERC1155DeltaStorage.layout()._uri = newuri;
     }
 
     function _mint(
@@ -332,6 +345,18 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         uint256 amount,
         bytes memory data
     ) internal virtual {
+       (uint256[] memory ids, uint256[] memory amounts) =  _mintWithoutCheck(to, amount);
+
+        uint256 end = ERC1155DeltaStorage.layout()._currentIndex;
+        _doSafeBatchTransferAcceptanceCheck(_msgSender(), address(0), to, ids, amounts, data);
+        if (ERC1155DeltaStorage.layout()._currentIndex != end) revert();
+    }
+
+    function _mintWithoutCheck(
+        address to,
+        uint256 amount
+    ) internal virtual returns(uint256[] memory ids, uint256[] memory amounts) {
+
         if(to == address(0)) {
             revert MintToZeroAddress();
         }
@@ -341,8 +366,8 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
 
         address operator = _msgSender();
 
-        uint256[] memory ids = new uint256[](amount);
-        uint256[] memory amounts = new uint256[](amount);
+        ids = new uint256[](amount);
+        amounts = new uint256[](amount);
         uint256 startTokenId = _nextTokenId();
 
         unchecked {
@@ -353,18 +378,15 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
             }
         }
         
-        _beforeTokenTransfer(operator, address(0), to, ids, data);
+        _beforeTokenTransfer(operator, address(0), to, ids);
 
-        _owned[to].setBatch(startTokenId, amount);
-        _currentIndex += amount;
+        ERC1155DeltaStorage.layout()._owned[to].setBatch(startTokenId, amount);
+        ERC1155DeltaStorage.layout()._currentIndex += amount;
 
         emit TransferBatch(operator, address(0), to, ids, amounts);
 
-        _afterTokenTransfer(operator, address(0), to, ids, data);
-        
-        uint256 end = _currentIndex;
-        _doSafeBatchTransferAcceptanceCheck(operator, address(0), to, ids, amounts, data);
-        if (_currentIndex != end) revert();
+        _afterTokenTransfer(operator, address(0), to, ids);
+
     }
 
     /**
@@ -388,17 +410,17 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         address operator = _msgSender();
         uint256[] memory ids = _asSingletonArray(id);
 
-        _beforeTokenTransfer(operator, from, address(0), ids, "");
+        _beforeTokenTransfer(operator, from, address(0), ids);
 
-        if(!_owned[from].get(id)) {
+        if(!ERC1155DeltaStorage.layout()._owned[from].get(id)) {
             revert BurnFromNonOnwerAddress();
         }
 
-        _owned[from].unset(id);
+        ERC1155DeltaStorage.layout()._owned[from].unset(id);
 
         emit TransferSingle(operator, from, address(0), id, 1);
 
-        _afterTokenTransfer(operator, from, address(0), ids, "");
+        _afterTokenTransfer(operator, from, address(0), ids);
     }
 
     /**
@@ -423,22 +445,22 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
 
         uint256[] memory amounts = new uint256[](ids.length);
 
-        _beforeTokenTransfer(operator, from, address(0), ids, "");
+        _beforeTokenTransfer(operator, from, address(0), ids);
 
         unchecked {
             for(uint256 i = 0; i < ids.length; i++) {
                 amounts[i] = 1;
                 uint256 id = ids[i];
-                if(!_owned[from].get(id)) {
+                if(!ERC1155DeltaStorage.layout()._owned[from].get(id)) {
                     revert BurnFromNonOnwerAddress();
                 }
-                _owned[from].unset(id);
+                ERC1155DeltaStorage.layout()._owned[from].unset(id);
             }
         }
         
         emit TransferBatch(operator, from, address(0), ids, amounts);
 
-        _afterTokenTransfer(operator, from, address(0), ids, "");
+        _afterTokenTransfer(operator, from, address(0), ids);
 
     }
 
@@ -454,7 +476,7 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         bool approved
     ) internal virtual {
         require(owner != operator, "ERC1155: setting approval status for self");
-        _operatorApprovals[owner][operator] = approved;
+        ERC1155DeltaStorage.layout()._operatorApprovals[owner][operator] = approved;
         emit ApprovalForAll(owner, operator, approved);
     }
 
@@ -482,8 +504,7 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         address operator,
         address from,
         address to,
-        uint256[] memory ids,
-        bytes memory data
+        uint256[] memory ids
     ) internal virtual {}
 
     /**
@@ -510,8 +531,7 @@ contract ERC1155DeltaUpgradeable is  Initializable, ContextUpgradeable, ERC165Up
         address operator,
         address from,
         address to,
-        uint256[] memory ids,
-        bytes memory data
+        uint256[] memory ids
     ) internal virtual {}
 
     function _doSafeTransferAcceptanceCheck(

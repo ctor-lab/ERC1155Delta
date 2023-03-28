@@ -39,7 +39,7 @@ contract ERC1155ReceiverMock is ERC1155Receiver {
         address operator,
         address from,
         uint256 id,
-        uint256 value,
+        uint256 /*value*/,
         bytes calldata data
     ) public virtual override returns (bytes4) {
         uint256 dataValue = data.length == 0 ? 0 : uint256(uint8(data[0]));
@@ -67,7 +67,7 @@ contract ERC1155ReceiverMock is ERC1155Receiver {
         address operator,
         address from,
         uint256[] calldata ids,
-        uint256[] calldata values,
+        uint256[] calldata /*values*/,
         bytes calldata data
     ) public virtual override returns (bytes4) {
         uint256 dataValue = data.length == 0 ? 0 : uint256(uint8(data[0]));

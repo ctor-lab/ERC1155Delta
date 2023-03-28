@@ -3,15 +3,14 @@
 
 pragma solidity ^0.8.0;
 
-import "solidity-bits/contracts/BitMaps.sol";
+import "solady/src/utils/LibBitmap.sol";
 
 import "../ERC1155DeltaUpgradeable.sol";
 
 import "./IERC1155DeltaQueryable.sol";
 
 abstract contract ERC1155DeltaQueryableUpgradeable is IERC1155DeltaQueryable, ERC1155DeltaUpgradeable {
-    using BitMaps for BitMaps.BitMap;
-
+    using LibBitmap for LibBitmap.Bitmap;
 
     /**
      * @dev Returns the number of tokens owned by `owner`.
@@ -31,7 +30,7 @@ abstract contract ERC1155DeltaQueryableUpgradeable is IERC1155DeltaQueryable, ER
      * - `start < stop`
      */
     function balanceOf(address owner, uint256 start, uint256 stop) public view virtual override returns (uint256) {
-        return _owned[owner].popcountB(start, stop - start);
+        return ERC1155DeltaStorage.layout()._owned[owner].popCount(start, stop - start);
     }
 
 
@@ -76,7 +75,7 @@ abstract contract ERC1155DeltaQueryableUpgradeable is IERC1155DeltaQueryable, ER
             
             uint256[] memory tokenIds = new uint256[](tokenIdsLength);
 
-            BitMaps.BitMap storage bmap = _owned[owner];
+            LibBitmap.Bitmap storage bmap = ERC1155DeltaStorage.layout()._owned[owner];
             
             for ((uint256 i, uint256 tokenIdsIdx) = (start, 0); tokenIdsIdx != tokenIdsLength; ++i) {
                 if(bmap.get(i) ) {
